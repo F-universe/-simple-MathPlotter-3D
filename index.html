@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Function Plotter</title>
+    <!-- Inclusione di Plotly -->
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <!-- Inclusione di math.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/9.4.4/math.min.js"></script>
+</head>
+<body>
+    <h1>3D Function Plotter</h1>
+    <!-- Campo di input per la funzione -->
+    <input type="text" id="functionInput" placeholder="Enter a function of x and y (e.g. x^2 + y^2)">
+    <button onclick="plotFunction()">Plot Function</button>
+
+    <!-- Area per il grafico -->
+    <div id="plot" style="width:600px;height:600px;"></div>
+
+    <script>
+        function plotFunction() {
+            const input = document.getElementById('functionInput').value;
+
+            try {
+                // Compila la funzione da input tramite math.js
+                const func = math.compile(input);
+                const xValues = [];
+                const yValues = [];
+                const zValues = [];
+
+                // Definisci l'intervallo di valori per x e y
+                const range = 20;
+                const step = 0.5;
+
+                // Genera valori per x, y e calcola z = f(x, y)
+                for (let x = -range; x <= range; x += step) {
+                    let zRow = [];
+                    let yRow = [];
+                    for (let y = -range; y <= range; y += step) {
+                        const z = func.evaluate({ x: x, y: y });
+                        zRow.push(z);
+                        yRow.push(y);
+                    }
+                    zValues.push(zRow);
+                    xValues.push(x);
+                    yValues.push(yRow);
+                }
+
+                // Crea il grafico 3D con Plotly
+                const trace = {
+                    z: zValues,
+                    x: xValues,
+                    y: yValues[0], // Usa il primo vettore di y come coordinata di riferimento
+                    type: 'surface'
+                };
+
+                const layout = {
+                    title: `Graph of ${input}`,
+                    scene: {
+                        xaxis: { title: 'x' },
+                        yaxis: { title: 'y' },
+                        zaxis: { title: 'f(x, y)' }
+                    }
+                };
+
+                Plotly.newPlot('plot', [trace], layout);
+            } catch (error) {
+                alert('Invalid function! Please enter a valid function of x and y.');
+            }
+        }
+    </script>
+</body>
+</html>
